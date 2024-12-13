@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:responsive_expense_tracker/widgets/extra_cleanup/category.dart';
 import 'package:uuid/uuid.dart';
 
 final formatter = DateFormat.yMd();
 
 const uuid = Uuid();
 
-enum Category { food, travel, leisure, work }
+
 
 const categoryIcons = {
   Category.food: Icons.lunch_dining,

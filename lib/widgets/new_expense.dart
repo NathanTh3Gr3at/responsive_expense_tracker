@@ -1,7 +1,189 @@
 import 'package:flutter/material.dart';
 import 'package:responsive_expense_tracker/models/expense.dart';
 
+import 'package:responsive_expense_tracker/widgets/extra_cleanup/action_buttons.dart';
+import 'package:responsive_expense_tracker/widgets/extra_cleanup/category.dart';
+import 'package:responsive_expense_tracker/widgets/extra_cleanup/date_picker_row.dart';
+import 'package:responsive_expense_tracker/widgets/extra_cleanup/dropdown_menu.dart';
+import 'package:responsive_expense_tracker/widgets/extra_cleanup/text_field.dart';
+
 class NewExpense extends StatefulWidget {
+  const NewExpense({super.key, required this.onAddExpense});
+
+  final void Function(Expense expense) onAddExpense;
+
+  @override
+  State<NewExpense> createState() {
+    return _NewExpenseState();
+  }
+}
+
+class _NewExpenseState extends State<NewExpense> {
+  final _titleController = TextEditingController();
+  final _amountController = TextEditingController();
+  DateTime? _selectedDate;
+  Category _selectedCategory = Category.leisure;
+
+  void _presentDatePicker() async {
+    final now = DateTime.now();
+    final firstDate = DateTime(now.year - 1, now.month, now.day);
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: now,
+      firstDate: firstDate,
+      lastDate: now,
+    );
+    setState(() {
+      _selectedDate = pickedDate;
+    });
+  }
+
+  void _submitExpenseData() {
+    final enteredAmount = double.tryParse(_amountController.text);
+    final amountIsInvalid = enteredAmount == null || enteredAmount <= 0;
+
+    if (_titleController.text.trim().isEmpty ||
+        amountIsInvalid ||
+        _selectedDate == null) {
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Invalid input'),
+          content: const Text(
+              'Please make sure a valid title, amount, date, and category were entered.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(ctx);
+              },
+              child: const Text('Okay'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    widget.onAddExpense(
+      Expense(
+        title: _titleController.text,
+        amount: enteredAmount,
+        date: _selectedDate!,
+        category: _selectedCategory,
+      ),
+    );
+    Navigator.pop(context);
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _amountController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final keyboardSpace = MediaQuery.of(context).viewInsets.bottom;
+
+    return LayoutBuilder(builder: (ctx, constraints) {
+      final width = constraints.maxWidth;
+
+      return SizedBox(
+        height: double.infinity,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(16, 16, 16, keyboardSpace + 16),
+            child: Column(
+              children: [
+                if (width >= 600)
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: CustomTextField(
+                          controller: _titleController,
+                          label: 'Title',
+                        ),
+                      ),
+                      const SizedBox(width: 24),
+                      Expanded(
+                        child: CustomTextField(
+                          controller: _amountController,
+                          label: 'Amount',
+                          keyboardType: TextInputType.number,
+                          prefixText: '\$ ',
+                        ),
+                      ),
+                    ],
+                  )
+                else
+                  CustomTextField(
+                    controller: _titleController,
+                    label: 'Title',
+                  ),
+                const SizedBox(height: 16),
+                if (width >= 600)
+                  Row(
+                    children: [
+                      CategoryDropdown(
+                        selectedCategory: _selectedCategory,
+                        onChanged: (value) {
+                          if (value == null) return;
+                          setState(() {
+                            _selectedCategory = value;
+                          });
+                        },
+                      ),
+                      const SizedBox(width: 24),
+                      Expanded(
+                        child: DatePickerRow(
+                          selectedDate: _selectedDate,
+                          onDatePickerPressed: _presentDatePicker,
+                          formatter: (date) =>
+                              '${date.day}/${date.month}/${date.year}',
+                        ),
+                      ),
+                    ],
+                  )
+                else
+                  Row(
+                    children: [
+                      Expanded(
+                        child: CustomTextField(
+                          controller: _amountController,
+                          label: 'Amount',
+                          keyboardType: TextInputType.number,
+                          prefixText: '\$ ',
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: DatePickerRow(
+                          selectedDate: _selectedDate,
+                          onDatePickerPressed: _presentDatePicker,
+                          formatter: (date) =>
+                              '${date.day}/${date.month}/${date.year}',
+                        ),
+                      ),
+                    ],
+                  ),
+                const SizedBox(height: 16),
+                ActionButtonsRow(
+                  onCancel: () {
+                    Navigator.pop(context);
+                  },
+                  onSave: _submitExpenseData,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    });
+  }
+}
+/* class NewExpense extends StatefulWidget {
   const NewExpense({super.key, required this.onAddExpense});
 
   final void Function(Expense expense) onAddExpense;
@@ -264,3 +446,4 @@ class _NewExpenseState extends State<NewExpense> {
     });
   }
 }
+ */
