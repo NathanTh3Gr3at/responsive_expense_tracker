@@ -1,16 +1,9 @@
-# responsive_expense_tracker
+# The Responsive Expense Tracker App
+<br />
 
-A new Flutter project.
+## About
+The same as the [Expense Tracker App](https://github.com/NathanTh3Gr3at/expense_tracker) but changes were made to ensure that the app interface doesnot look messy if the phone is horizontal.
 
-## Getting Started
+## Images
 
-This project is a starting point for a Flutter application.
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
